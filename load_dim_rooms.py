@@ -68,7 +68,6 @@ rooms.insert(0, 'room_id', range(1,1+len(rooms)))
 rooms['room_type_id'] = rooms['room_type_id'].astype('Int64')
 rooms['building_id'] = rooms['room_type_id'].astype('Int64')
 
-print(rooms.info())
 
 #Upload to Big Guery
 job_config = bigquery.LoadJobConfig(

@@ -1,4 +1,3 @@
-import collections
 from google.cloud import bigquery
 import pandas as pd
 from queries import queries as q

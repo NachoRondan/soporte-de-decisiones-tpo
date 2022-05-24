@@ -29,3 +29,19 @@ def get_bq_table(table_name):
         )
     )
     return df
+
+def get_bq_query(query):
+    bqclient = bigquery.Client()
+    query_string = query
+
+    df = (
+        bqclient.query(query_string)
+        .result()
+        .to_dataframe(
+            # Optionally, explicitly request to use the BigQuery Storage API. As of
+            # google-cloud-bigquery version 1.26.0 and above, the BigQuery Storage
+            # API is used by default.
+            create_bqstorage_client=True,
+        )
+    )
+    return df

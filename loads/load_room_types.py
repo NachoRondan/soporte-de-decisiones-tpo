@@ -1,10 +1,12 @@
 from google.cloud import bigquery
 import pandas as pd
-from queries import queries as q
+import sys
+sys.path.append('../queries')
+from queries import get_excel_db
 import warnings
 warnings.filterwarnings("ignore")
 
-room_types = q.get_excel_db("Room Types.xlsx")
+room_types = get_excel_db("Room Types.xlsx")
 room_types = room_types.drop(columns=['ROOM','BUILDING'])
 room_types = room_types.drop_duplicates()
 room_types = room_types.rename(columns={'TYPE':'room_type_code'})

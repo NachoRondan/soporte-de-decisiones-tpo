@@ -2,42 +2,44 @@ import collections
 from re import sub
 from google.cloud import bigquery
 import pandas as pd
+import sys
+sys.path.append('../queries')
 import datetime
-from queries import queries as q
+from queries import get_access_db,get_excel_db,get_bq_query
 import warnings
 warnings.filterwarnings("ignore")
 
-fall_2019 = q.get_access_db("Fall 2019")
+fall_2019 = get_access_db("Fall 2019")
 fall_2019 = fall_2019.rename(columns={'Fall 2001':'course_season_id'})
 fall_2019['year'] = 2019
 fall_2019['season'] = 'Fall'
 
-fall_2020 = q.get_access_db("Fall 2020")
+fall_2020 = get_access_db("Fall 2020")
 fall_2020 = fall_2020.rename(columns={'Fall 2002':'course_season_id'})
 fall_2020['year'] = 2020
 fall_2020['season'] = 'Fall'
 
-fall_2021 = q.get_access_db("Fall 2021")
+fall_2021 = get_access_db("Fall 2021")
 fall_2021 = fall_2021.rename(columns={'Fall 2003':'course_season_id'})
 fall_2021['year'] = 2021
 fall_2021['season'] = 'Fall'
 
-spring_2019 = q.get_access_db("Spring 2019")
+spring_2019 = get_access_db("Spring 2019")
 spring_2019 = spring_2019.rename(columns={'Spring2002':'course_season_id'})
 spring_2019['year'] = 2019
 spring_2019['season'] = 'Spring'
 
-spring_2020 = q.get_access_db("Spring 2020")
+spring_2020 = get_access_db("Spring 2020")
 spring_2020 = spring_2020.rename(columns={'SPRING 2003':'course_season_id'})
 spring_2020['year'] = 2020
 spring_2020['season'] = 'Spring'
 
-summer_2019 = q.get_access_db("Summer 2019")
+summer_2019 = get_access_db("Summer 2019")
 summer_2019 = summer_2019.rename(columns={'Summer 2002':'course_season_id'})
 summer_2019['year'] = 2019
 summer_2019['season'] = 'Summer'
 
-summer_2020 = q.get_access_db("Summer 2020")
+summer_2020 = get_access_db("Summer 2020")
 summer_2020 = summer_2020.rename(columns={'SUMMER 2003':'course_season_id'})
 summer_2020['year'] = 2020
 summer_2020['season'] = 'Summer'
@@ -52,7 +54,7 @@ facts_courses_by_season['Hours'] = pd.to_datetime(facts_courses_by_season['Hours
 facts_courses_by_season['time'] = [datetime.datetime.time(d) for d in facts_courses_by_season['Hours']]
 
 #Instructors join
-dim_instructors = q.get_excel_db("Instructors.xlsx")
+dim_instructors = get_excel_db("Instructors.xlsx")
 dim_instructors = dim_instructors.drop(columns=['Street','City','State','ZipCode','Hiring_date','Born_date','Family_Nu','Children_Nu','Commission','CommissionRate'])
 dim_instructors = dim_instructors.rename(columns={'Instructor_Nu':'instructor_id','Instructor':'instructor'})
 dim_instructors['instructor_id'] = dim_instructors.instructor_id.astype('Int64')
@@ -82,7 +84,7 @@ FROM `soporte-decisiones-tpo.models.dim_rooms` as r
 left join `soporte-decisiones-tpo.models.dim_buildings` as b on r.building_id = b.building_id
 """
 
-dim_rooms = q.get_bq_query(query)
+dim_rooms = get_bq_query(query)
 dim_rooms['Room'] = dim_rooms['building_code'] + " " + dim_rooms['room_code']
 dim_rooms = dim_rooms.drop(columns=['room_code','capacity','room_type_id','building_id','building_id_1','building_code','description'])
 dim_rooms = dim_rooms.dropna()

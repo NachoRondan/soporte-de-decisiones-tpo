@@ -16,6 +16,7 @@ query = """
                 c.course as Course,
                 rt.description as RoomType,
                 s.time as Time,
+                s.expected_capacity as ExpectedCapacity,
 
         FROM `soporte-decisiones-tpo.models.facts_courses_by_season` as s
           left join `soporte-decisiones-tpo.models.dim_instructors` as i on i.instructor_id = s.instructor_id
@@ -27,6 +28,7 @@ df =  get_bq_query(query)
 df['Year'] = df['Year'].astype(str)
 df['Season'] = df['season'] + ' ' + df['Year']
 df = df.drop(columns=['season','Year'])
+df['Rate'] = df['Inscriptions']/df['ExpectedCapacity']
 
 #Upload to Big Guery
 job_config = bigquery.LoadJobConfig(
@@ -36,6 +38,9 @@ job_config = bigquery.LoadJobConfig(
         bigquery.SchemaField("Course", bigquery.enums.SqlTypeNames.STRING),
         bigquery.SchemaField("Instructor", bigquery.enums.SqlTypeNames.STRING),
         bigquery.SchemaField("RoomType", bigquery.enums.SqlTypeNames.STRING),
+        bigquery.SchemaField("Time", bigquery.enums.SqlTypeNames.TIME),
+        bigquery.SchemaField("ExpectedCapacity", bigquery.enums.SqlTypeNames.INTEGER),
+        bigquery.SchemaField("Rate", bigquery.enums.SqlTypeNames.FLOAT64),
     ],
     # Optionally, set the write disposition. BigQuery appends loaded rows
     # to an existing table by default, but with WRITE_TRUNCATE write

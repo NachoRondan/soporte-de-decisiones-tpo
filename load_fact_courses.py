@@ -1,9 +1,7 @@
-import collections
-from re import sub
 from google.cloud import bigquery
 import pandas as pd
 import sys
-sys.path.append('../queries')
+sys.path.append('./queries')
 import datetime
 from queries import get_access_db,get_excel_db,get_bq_query
 import warnings
@@ -76,7 +74,12 @@ dim_days_combination = dim_days_combination.drop_duplicates(subset='Days', keep=
 dim_days_combination.insert(0, 'days_combination_id', range(1,1+len(dim_days_combination)))
 facts_courses_by_season = facts_courses_by_season.join(dim_days_combination.set_index('Days'),on='Days')
 dim_days_combination = dim_days_combination.rename(columns={'Days':'days'})
+def is_remote(row):
+    if('r' in row['Days'].lower()):
+        return 1
+    return 0
 
+facts_courses_by_season['is_remote'] = facts_courses_by_season.apply(is_remote,axis=1)
 
 # Room Id join
 query = """SELECT * 
@@ -91,10 +94,20 @@ dim_rooms = dim_rooms.dropna()
 dim_rooms = dim_rooms.drop_duplicates(subset='Room')
 facts_courses_by_season = facts_courses_by_season.join(dim_rooms.set_index('Room'),on='Room')
 
+dim_capacity = get_excel_db('CourseCapacity.xlsx')
+dim_capacity['key'] = dim_capacity['Course'] + dim_capacity['Season']
+dim_capacity = dim_capacity.drop(columns=['Course Title','Season'])
+facts_courses_by_season['key'] = facts_courses_by_season['course_season_id'] + facts_courses_by_season['season'] + " " + facts_courses_by_season['year'].astype(str)
+facts_courses_by_season = facts_courses_by_season.join(dim_capacity.set_index('key'),on='key')
+
+facts_courses_by_season = facts_courses_by_season.drop_duplicates(subset=['key'],keep='first')
+
+
+
 
 # Last cleaning
-facts_courses_by_season = facts_courses_by_season.drop(columns=['Course Title','Hours','instructor','Days','Room'])
-facts_courses_by_season = facts_courses_by_season.rename(columns={'Male Enrolled':'male_enrolled','Female Enrolled':'female_enrolled'})
+facts_courses_by_season = facts_courses_by_season.drop(columns=['Course Title','Hours','instructor','Days','Room','key','Course'])
+facts_courses_by_season = facts_courses_by_season.rename(columns={'Male Enrolled':'male_enrolled','Female Enrolled':'female_enrolled','Size':'expected_capacity'})
 facts_courses_by_season['male_enrolled'] = facts_courses_by_season.male_enrolled.astype('Int64')
 facts_courses_by_season['female_enrolled'] = facts_courses_by_season.female_enrolled.astype('Int64')
 facts_courses_by_season['room_id'] = facts_courses_by_season.female_enrolled.astype('Int64')
@@ -112,6 +125,8 @@ job_config = bigquery.LoadJobConfig(
         bigquery.SchemaField("course_id", bigquery.enums.SqlTypeNames.INTEGER),
         bigquery.SchemaField("days_combination_id", bigquery.enums.SqlTypeNames.INTEGER),
         bigquery.SchemaField("room_id", bigquery.enums.SqlTypeNames.INTEGER),
+        bigquery.SchemaField("is_remote", bigquery.enums.SqlTypeNames.INTEGER),
+        bigquery.SchemaField("expected_capacity", bigquery.enums.SqlTypeNames.INTEGER),
     ],
     # Optionally, set the write disposition. BigQuery appends loaded rows
     # to an existing table by default, but with WRITE_TRUNCATE write

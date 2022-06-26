@@ -2,11 +2,11 @@ from google.cloud import bigquery
 import pandas as pd
 import sys
 sys.path.append('../queries')
-from queries import get_excel_db
+from queries import queries as q
 import warnings
 warnings.filterwarnings("ignore")
 
-dim_instructors = get_excel_db("Instructors.xlsx")
+dim_instructors = q.get_excel_db("Instructors.xlsx")
 dim_instructors = dim_instructors.rename(columns={'Street':'street','City':'city','State':"state", 'ZipCode':'zip_code'})
 
 

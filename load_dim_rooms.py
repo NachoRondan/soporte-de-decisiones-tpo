@@ -1,19 +1,18 @@
 from google.cloud import bigquery
 import pandas as pd
 import sys
-sys.path.append('../queries')
 import numpy as np
-from queries import get_excel_db,get_access_db
+from queries import queries as q
 import warnings
 warnings.filterwarnings("ignore")
 
 # Query access db
-rooms = get_access_db("Rooms")
+rooms = q.get_access_db("Rooms")
 rooms = rooms.rename(columns={'ROOM':'room_code','SEATS':'capacity','LOCATION':'building_code',"Location Name":'building'})
 rooms['merged_key'] = rooms['room_code'] + rooms['building_code']
 
 # Query rooms excel
-room_types = get_excel_db("Room Types.xlsx")
+room_types = q.get_excel_db("Room Types.xlsx")
 room_types['ROOM'] = room_types['ROOM'].astype(str)
 
 
@@ -68,7 +67,7 @@ rooms = rooms.drop_duplicates(subset='merged_key', keep='first')
 rooms = rooms.drop(columns=['building_code','building','merged_key','TYPE'])
 rooms.insert(0, 'room_id', range(1,1+len(rooms)))
 rooms['room_type_id'] = rooms['room_type_id'].astype('Int64')
-rooms['building_id'] = rooms['room_type_id'].astype('Int64')
+rooms['building_id'] = rooms['building_id'].astype('Int64')
 
 
 #Upload to Big Guery

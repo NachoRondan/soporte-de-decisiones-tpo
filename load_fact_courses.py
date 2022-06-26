@@ -103,14 +103,12 @@ facts_courses_by_season = facts_courses_by_season.join(dim_capacity.set_index('k
 facts_courses_by_season = facts_courses_by_season.drop_duplicates(subset=['key'],keep='first')
 
 
-
-
 # Last cleaning
 facts_courses_by_season = facts_courses_by_season.drop(columns=['Course Title','Hours','instructor','Days','Room','key','Course'])
 facts_courses_by_season = facts_courses_by_season.rename(columns={'Male Enrolled':'male_enrolled','Female Enrolled':'female_enrolled','Size':'expected_capacity'})
 facts_courses_by_season['male_enrolled'] = facts_courses_by_season.male_enrolled.astype('Int64')
 facts_courses_by_season['female_enrolled'] = facts_courses_by_season.female_enrolled.astype('Int64')
-facts_courses_by_season['room_id'] = facts_courses_by_season.female_enrolled.astype('Int64')
+facts_courses_by_season['room_id'] = facts_courses_by_season.room_id.astype('Int64')
 
 #Upload to Big Guery
 job_config = bigquery.LoadJobConfig(

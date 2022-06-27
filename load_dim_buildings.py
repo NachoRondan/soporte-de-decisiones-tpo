@@ -1,12 +1,10 @@
 from google.cloud import bigquery
 import pandas as pd
-import sys
-sys.path.append('../queries')
-from queries import get_access_db
+from queries import queries as q
 import warnings
 warnings.filterwarnings("ignore")
 
-rooms_dataframe = get_access_db("Rooms")
+rooms_dataframe = q.get_access_db("Rooms")
 
 rooms_dataframe = rooms_dataframe.rename(columns={"LOCATION":'building_code', "Location Name":'description'})
 rooms_dataframe = rooms_dataframe.drop(columns=['ROOM','SEATS'])

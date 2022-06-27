@@ -1,7 +1,5 @@
 from google.cloud import bigquery
 import pandas as pd
-import sys
-sys.path.append('../queries')
 from queries import queries as q
 import warnings
 warnings.filterwarnings("ignore")

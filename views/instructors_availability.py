@@ -4,7 +4,6 @@ from typing import List
 import pandas as pd
 import sys
 sys.path.append('../queries')
-
 from queries import get_bq_query
 from google.cloud import bigquery
 import warnings

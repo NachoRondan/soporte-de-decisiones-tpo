@@ -1,14 +1,12 @@
 from google.cloud import bigquery
 import pandas as pd
-import sys
-sys.path.append('./queries')
 import datetime
-from queries import get_access_db,get_excel_db,get_bq_query
+from queries import queries as q
 import warnings
 warnings.filterwarnings("ignore")
 
-dim_date = get_excel_db('dim_date.xlsx')
-dim_season = get_excel_db('dim_season.xlsx')
+dim_date = q.get_excel_db('dim_date.xlsx')
+dim_season = q.get_excel_db('dim_season.xlsx')
 
 #Upload to Big Guery
 job_config = bigquery.LoadJobConfig(

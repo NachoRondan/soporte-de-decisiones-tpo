@@ -1,7 +1,5 @@
 from google.cloud import bigquery
 import pandas as pd
-import sys
-sys.path.append('./queries')
 import datetime
 from queries import get_access_db,get_excel_db,get_bq_query
 import warnings

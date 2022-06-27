@@ -1,6 +1,5 @@
 from google.cloud import bigquery
 import pandas as pd
-import sys
 import numpy as np
 from queries import queries as q
 import warnings
